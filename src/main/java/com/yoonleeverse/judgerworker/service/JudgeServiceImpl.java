@@ -37,9 +37,9 @@ public class JudgeServiceImpl implements JudgeService {
     public void judge(JudgeMessage judgeMessage) {
         String submissionId = judgeMessage.getSubmissionId();
         log.debug("start {} - submissionId={}", Thread.currentThread().getName(), submissionId);
-
-        JudgeClient judgeClient = new JudgeClient(judgeMessage, judger);
+        JudgeClient judgeClient = null;
         try {
+            judgeClient = new JudgeClient(judgeMessage, judger);
             judgeClient.initEnv();
 
             RunResult compileResult = judgeClient.compileCode();
@@ -55,7 +55,9 @@ public class JudgeServiceImpl implements JudgeService {
         } catch (Exception e) {
             completeJudge(submissionId, List.of(RunResult.ofFail(UNK_ERROR.getValue())));
         } finally {
-            judgeClient.cleanUp();
+            if (judgeClient != null) {
+                judgeClient.cleanUp();
+            }
         }
     }
 
