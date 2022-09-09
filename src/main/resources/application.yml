@@ -1,0 +1,10 @@
+spring:
+    rabbitmq:
+        host: ${RABBITMQ_HOST:localhost}
+        port: ${RABBITMQ_PORT:5672}
+        username: ${RABBITMQ_USERNAME:guest}
+        password: ${RABBITMQ_PASSWORD:guest}
+
+logging:
+    level:
+        com.yoonleeverse.judgerworker: debug

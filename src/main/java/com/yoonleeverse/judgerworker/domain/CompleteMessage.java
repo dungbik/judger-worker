@@ -1,0 +1,12 @@
+package com.yoonleeverse.judgerworker.domain;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+
+@Data
+public class CompleteMessage implements Serializable {
+    private String submissionId;
+    private List<RunResult> results;
+}
