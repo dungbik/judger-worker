@@ -36,7 +36,8 @@ public class JudgeServiceImpl implements JudgeService {
     @Override
     public void judge(JudgeMessage judgeMessage) {
         String submissionId = judgeMessage.getSubmissionId();
-        log.debug("start {} - submissionId={}", Thread.currentThread().getName(), submissionId);
+        long problemId = judgeMessage.getProblemId();
+        log.debug("start {} - judgeMessage={}", Thread.currentThread().getName(), judgeMessage);
         JudgeClient judgeClient = null;
         try {
             judgeClient = new JudgeClient(judgeMessage, judger);
@@ -49,11 +50,11 @@ public class JudgeServiceImpl implements JudgeService {
             if (isCompileSuccess) {
                 runResults.addAll(judgeClient.runCode());
             }
-            completeJudge(submissionId, runResults);
+            completeJudge(submissionId, problemId, runResults);
         } catch (JudgeException e) {
-            completeJudge(submissionId, List.of(RunResult.ofFail(e.getResultValue())));
+            completeJudge(submissionId, problemId, List.of(RunResult.ofFail(e.getResultValue())));
         } catch (Exception e) {
-            completeJudge(submissionId, List.of(RunResult.ofFail(UNK_ERROR.getValue())));
+            completeJudge(submissionId, problemId, List.of(RunResult.ofFail(UNK_ERROR.getValue())));
         } finally {
             if (judgeClient != null) {
                 judgeClient.cleanUp();
@@ -67,10 +68,11 @@ public class JudgeServiceImpl implements JudgeService {
      *  - 결합도(Coupling)를 최대한 낮추기 위해 처리 속도를 손해보고, 유저에게 바로가 아닌 [online-judge-api] 서버를 통해 유저로 채점 완료 통지를 한다.
      * @param submissionId
      */
-    public void completeJudge(String submissionId, List<RunResult> results) {
+    public void completeJudge(String submissionId, long problemId, List<RunResult> results) {
         log.debug("complete - submissionId={}", submissionId);
         CompleteMessage completeMessage = new CompleteMessage();
         completeMessage.setSubmissionId(submissionId);
+        completeMessage.setProblemId(problemId);
         completeMessage.setResults(results);
 
         rabbitTemplate.convertAndSend(EXCHANGE_NAME, COMPLETE_ROUTING_KEY, completeMessage);

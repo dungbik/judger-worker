@@ -25,8 +25,8 @@ public class RunResult implements Serializable {
 
     public static RunResult ofFail(int id) {
         RunResult runResult = new RunResult();
-        runResult.setId(id);
-        runResult.setResult(6);
+        runResult.setId(0);
+        runResult.setResult(id);
         return runResult;
     }
 

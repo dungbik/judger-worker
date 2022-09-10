@@ -142,10 +142,15 @@ public class JudgeClient {
                     .gid(0)
                     .build();
 
+            log.debug("judgeOne - input");
+            List.of(testCaseInput.getInput().split("\n")).forEach(input -> log.debug("{}", input));
+
             Result.ByValue judgerResult = this.judger.judge(judgerParam);
             RunResult runResult = RunResult.ofSuccess(id, judgerResult);
             String output = FileUtil.loadText(outputPath);
             if (output != null) {
+                log.debug("judgeOne - output");
+                log.debug(output);
                 runResult.setOutput(StringUtil.encryptMD5(output));
             }
             return runResult;

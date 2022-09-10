@@ -8,5 +8,6 @@ import java.util.List;
 @Data
 public class CompleteMessage implements Serializable {
     private String submissionId;
+    private long problemId;
     private List<RunResult> results;
 }

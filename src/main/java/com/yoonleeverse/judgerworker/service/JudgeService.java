@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface JudgeService {
     void judge(JudgeMessage judgeMessage);
-    void completeJudge(String submissionId, List<RunResult> results);
+    void completeJudge(String submissionId, long problemId, List<RunResult> results);
 }

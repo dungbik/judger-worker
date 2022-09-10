@@ -34,7 +34,10 @@ public class FileUtil {
                 StringBuilder sb = new StringBuilder();
                 String line;
                 while ((line = br.readLine()) != null) {
-                    sb.append(line + System.lineSeparator());
+                    if (sb.length() > 0) {
+                        sb.append(System.lineSeparator());
+                    }
+                    sb.append(line);
                 }
                 return sb.toString();
             } catch (Exception e) {
