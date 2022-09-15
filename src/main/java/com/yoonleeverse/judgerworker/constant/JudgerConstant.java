@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class JudgerConstant {
 
-    public static final String ROOT_PATH = "/home/ec2-user/judger-worker";
+    public static final String ROOT_PATH = "/home/www/judger-worker";
     public static final String SUBMISSION_PATH = "/submission";
 
     public static final Map<String, RunConfig> RUN_CONFIG_MAP = Map.ofEntries(
