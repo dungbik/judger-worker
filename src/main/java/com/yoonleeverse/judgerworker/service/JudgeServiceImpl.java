@@ -46,10 +46,8 @@ public class JudgeServiceImpl implements JudgeService {
             RunResult compileResult = judgeClient.compileCode();
 
             List<RunResult> runResults = new ArrayList<>(List.of(compileResult));
-            boolean isCompileSuccess = (compileResult.getResult() == SUCCESS.getValue());
-            if (isCompileSuccess) {
-                runResults.addAll(judgeClient.runCode());
-            }
+            runResults.addAll(judgeClient.runCode());
+
             completeJudge(submissionId, problemId, runResults);
         } catch (JudgeException e) {
             completeJudge(submissionId, problemId, List.of(RunResult.ofFail(e.getResultValue())));

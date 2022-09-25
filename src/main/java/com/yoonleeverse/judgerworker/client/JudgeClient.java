@@ -12,7 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.FileSystemUtils;
 import yoonleeverse.Judger;
 import yoonleeverse.JudgerParam;
-import yoonleeverse.Result;
+import yoonleeverse.JudgerResult;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -42,8 +42,8 @@ public class JudgeClient {
         this.runConfig = RUN_CONFIG_MAP.get(judgeMessage.getLanguage());
 
         this.basePath = Path.of(ROOT_PATH, SUBMISSION_PATH, judgeMessage.getSubmissionId());
-        this.srcPath = this.basePath.resolve(this.runConfig.getSrcName());
-        this.exePath = this.basePath.resolve(this.runConfig.getExeName());
+        this.srcPath = Path.of(this.runConfig.getSrcName());
+        this.exePath = Path.of(this.runConfig.getExeName());
 
         this.judger = judger;
 
@@ -62,38 +62,25 @@ public class JudgeClient {
             throw new JudgeException(INIT_EVN_ERROR);
         }
 
-        if (!FileUtil.saveText(this.srcPath, this.judgeMessage.getCode())) {
+        if (!FileUtil.saveText(this.basePath.resolve(this.srcPath), this.judgeMessage.getCode())) {
             throw new JudgeException(COMPILE_ERROR);
         }
     }
 
     public RunResult compileCode() throws JudgeException {
-        Path outputPath = this.basePath.resolve("compiler.out");
         String[] compileCommand = String.format(this.runConfig.getCompileCommand(), this.srcPath, this.exePath).split(" ");
-        JudgerParam judgerParam = JudgerParam.builder()
-                .exe_path(compileCommand[0])
-                .input_path(List.of(this.srcPath.toString()))
-                .output_path(outputPath.toString())
-                .error_path(outputPath.toString())
-                .max_cpu_time(this.runConfig.getCompileMaxCpuTime())
-                .max_real_time(this.runConfig.getCompileMaxRealTime())
-                .max_memory(this.runConfig.getCompileMaxMemory() * 1024 * 1024)
-                .max_stack(128 * 1024 * 1024)
-                .max_output_size(20 * 1024 * 1024)
-                .args(List.of(compileCommand).subList(1, compileCommand.length))
-                .uid(0)
-                .gid(0)
-                .build();
 
-        log.debug("compile {}, {}, {}", srcPath, outputPath, Arrays.toString(compileCommand));
-        Result.ByValue judgerResult = this.judger.judge(judgerParam);
+        log.debug("compileCode srcPath={}, exePath={}, compileCommand={}", this.srcPath, this.exePath, Arrays.toString(compileCommand));
 
-        RunResult compileResult = RunResult.ofSuccess(0, judgerResult);
-        if (compileResult.getResult() != SUCCESS.getValue()) {
-            compileResult.setOutput(FileUtil.loadText(outputPath));
+        JudgerResult compileResult = this.judger.compile(this.basePath.toString(), compileCommand);
+        log.debug("compileCode compileResult={}", compileResult);
+
+        RunResult runResult = RunResult.makeResult(0, compileResult);
+        if (runResult.getResult() != SUCCESS.getValue()) {
+            throw new JudgeException(runResult.getResult());
         }
 
-        return compileResult;
+        return runResult;
     }
 
     public List<RunResult> runCode() {
@@ -145,14 +132,15 @@ public class JudgeClient {
             log.debug("judgeOne - input");
             List.of(testCaseInput.getInput().split("\n")).forEach(input -> log.debug("{}", input));
 
-            Result.ByValue judgerResult = this.judger.judge(judgerParam);
-            RunResult runResult = RunResult.ofSuccess(id, judgerResult);
+            JudgerResult judgerResult = this.judger.judge(this.basePath.toString(), judgerParam);
+            RunResult runResult = RunResult.makeResult(id, judgerResult);
             String output = FileUtil.loadText(outputPath);
             if (output != null) {
                 log.debug("judgeOne - output");
                 log.debug(output);
                 runResult.setOutput(StringUtil.encryptMD5(output));
             }
+            System.out.println(runResult);
             return runResult;
         } catch (Exception e) {
             log.debug(e.toString());

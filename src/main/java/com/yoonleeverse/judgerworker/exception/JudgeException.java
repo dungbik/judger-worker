@@ -14,4 +14,9 @@ public class JudgeException extends Exception {
         super(ERR_MSG);
         this.resultValue = resultEnum.getValue();
     }
+
+    public JudgeException(int resultValue) {
+        super(ERR_MSG);
+        this.resultValue = resultValue;
+    }
 }

@@ -1,24 +1,21 @@
 package com.yoonleeverse.judgerworker.domain;
 
 import lombok.Data;
-import yoonleeverse.Result;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import yoonleeverse.JudgerResult;
 
 import java.io.Serializable;
 
 @Data
-public class RunResult implements Serializable {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
+public class RunResult extends JudgerResult implements Serializable {
     private int id;
-    private int cpuTime;
-    private int real_time;
-    private long memory;
-    private int signal;
-    private int exit_code;
-    private int error;
-    private int result;
     private String output;
 
-    public static RunResult ofSuccess(int id, Result.ByValue judgerResult) {
-        RunResult runResult = makeRunResult(judgerResult);
+    public static RunResult makeResult(int id, JudgerResult judgerResult) {
+        RunResult runResult = RunResult.init(judgerResult);
         runResult.setId(id);
         return runResult;
     }
@@ -30,15 +27,16 @@ public class RunResult implements Serializable {
         return runResult;
     }
 
-    private static RunResult makeRunResult(Result.ByValue judgerResult) {
+    public static RunResult init(JudgerResult judgerResult) {
         RunResult runResult = new RunResult();
-        runResult.setCpuTime(judgerResult.cpu_time);
-        runResult.setReal_time(judgerResult.real_time);
-        runResult.setMemory(judgerResult.memory);
-        runResult.setSignal(judgerResult.signal);
-        runResult.setExit_code(judgerResult.exit_code);
-        runResult.setError(judgerResult.error);
-        runResult.setResult(judgerResult.result);
+        runResult.setCpu_time(judgerResult.getCpu_time());
+        runResult.setReal_time(judgerResult.getReal_time());
+        runResult.setSignal(judgerResult.getSignal());
+        runResult.setExit_code(judgerResult.getExit_code());
+        runResult.setError(judgerResult.getError());
+        runResult.setResult(judgerResult.getResult());
         return runResult;
     }
 }
+
+
