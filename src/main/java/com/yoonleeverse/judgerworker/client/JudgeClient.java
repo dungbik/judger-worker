@@ -48,7 +48,7 @@ public class JudgeClient {
         this.judger = judger;
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
+        executor.setCorePoolSize(12);
         executor.initialize();
         this.taskExecutor = executor;
     }
@@ -84,6 +84,8 @@ public class JudgeClient {
     }
 
     public List<RunResult> runCode() {
+        log.debug("runCode start");
+
         List<CompletableFuture<RunResult>> completableFutures = this.judgeMessage.getInputs().stream()
                 .map(input -> CompletableFuture.supplyAsync(() -> judgeOne(input), this.taskExecutor)
                         .exceptionally(e -> {
@@ -96,6 +98,9 @@ public class JudgeClient {
                 .map(CompletableFuture::join)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+
+        log.debug("runCode firstElement", runResults.get(0));
+        log.debug("runCode end size={}", runResults.size());
 
         return runResults;
     }
@@ -129,18 +134,13 @@ public class JudgeClient {
                     .gid(0)
                     .build();
 
-            log.debug("judgeOne - input");
-            List.of(testCaseInput.getInput().split("\n")).forEach(input -> log.debug("{}", input));
-
             JudgerResult judgerResult = this.judger.judge(this.basePath.toString(), judgerParam);
             RunResult runResult = RunResult.makeResult(id, judgerResult);
             String output = FileUtil.loadText(outputPath);
             if (output != null) {
-                log.debug("judgeOne - output");
-                log.debug(output);
-                runResult.setOutput(StringUtil.encryptMD5(output));
+                runResult.setOutput(output);
+                runResult.setOutputMD5(StringUtil.encryptMD5(output));
             }
-            System.out.println(runResult);
             return runResult;
         } catch (Exception e) {
             log.debug(e.toString());

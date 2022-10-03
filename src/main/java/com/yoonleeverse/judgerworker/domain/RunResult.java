@@ -13,6 +13,7 @@ import java.io.Serializable;
 public class RunResult extends JudgerResult implements Serializable {
     private int id;
     private String output;
+    private String outputMD5;
 
     public static RunResult makeResult(int id, JudgerResult judgerResult) {
         RunResult runResult = RunResult.init(judgerResult);
