@@ -1,5 +1,6 @@
 package com.yoonleeverse.judgerworker.domain;
 
+import com.yoonleeverse.judgerworker.constant.ProgrammingLanguage;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,6 +14,6 @@ public class JudgeMessage implements Serializable {
     private int maxRealTime;
     private int maxMemory;
     private List<TestCaseInput> inputs;
-    private String language;
+    private ProgrammingLanguage language;
     private String code;
 }
