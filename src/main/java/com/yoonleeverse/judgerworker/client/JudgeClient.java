@@ -99,7 +99,7 @@ public class JudgeClient {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        log.debug("runCode firstElement", runResults.get(0));
+        log.debug("runCode firstElement={}", runResults.get(0));
         log.debug("runCode end size={}", runResults.size());
 
         return runResults;
@@ -133,6 +133,7 @@ public class JudgeClient {
                     .uid(0)
                     .gid(0)
                     .build();
+            log.debug("{}", judgerParam);
 
             JudgerResult judgerResult = this.judger.judge(this.basePath.toString(), judgerParam);
             RunResult runResult = RunResult.makeResult(id, judgerResult);
